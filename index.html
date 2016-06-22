@@ -12,12 +12,13 @@
    </style>
 </head>
 <body ng-app="flappernews" ng-controller="MainCtrl">
-  <div class="row">class="form-control"
+  <div class="row">
     <div class="col-sm-6 col-sm-offset-3">
       <div class="page-header">
         <h1>Flapper News</h1>
       </div>
-        <ul class="list-unstyled" ng-repeat="post in posts | orderBy: '-upvotes'">
+        <h2 ng-hide="posts.length"> No posts found.</h2>
+        <ul  class="list-unstyled" ng-repeat="post in posts | orderBy: '-upvotes'">
           <li>
             <span class="glyphicon glyphicon-thumbs-up" ng-click="upVote(post)"></span>
             <a ng-show="post.link" href="{{post.link}}">
