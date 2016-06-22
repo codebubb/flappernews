@@ -11,8 +11,15 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 require('./models/Post');
 require('./models/Comment');
+require('./models/User');
 // mongoose.connect('mongodb://flapper:flapper123@ds019654.mlab.com:19654/flappernews');
 mongoose.connect('mongodb://localhost/flappernews');
+
+/**
+  Passport authentication
+*/
+var passport = require('passport');
+require('./config/passport');
 
 var routes = require('./routes/index');
 var posts = require('./routes/posts');
@@ -34,7 +41,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 app.use('/', routes);
 app.use('/posts', posts);
-app.use('/users', users);
+app.use(passport.initialize());
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
