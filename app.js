@@ -11,7 +11,7 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 require('./models/Post');
 require('./models/Comment');
-mongoose.connect('mongodb://localhost/flappernews');
+mongoose.connect('mongodb://flapper:flapper123@ds019654.mlab.com:19654/flappernews');
 
 var routes = require('./routes/index');
 var posts = require('./routes/posts');
