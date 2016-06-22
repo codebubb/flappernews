@@ -11,7 +11,8 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 require('./models/Post');
 require('./models/Comment');
-mongoose.connect('mongodb://flapper:flapper123@ds019654.mlab.com:19654/flappernews');
+// mongoose.connect('mongodb://flapper:flapper123@ds019654.mlab.com:19654/flappernews');
+mongoose.connect('mongodb://localhost/flappernews');
 
 var routes = require('./routes/index');
 var posts = require('./routes/posts');
@@ -30,7 +31,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 app.use('/', routes);
 app.use('/posts', posts);
 app.use('/users', users);
