@@ -5,7 +5,16 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+/**
+  Database setup
+*/
+var mongoose = require('mongoose');
+require('./models/Post');
+require('./models/Comments');
+mongoose.connect('mongodb://localhost/flappernews');
+
 var routes = require('./routes/index');
+var posts = require('./routes/posts');
 var users = require('./routes/users');
 
 var app = express();
@@ -23,6 +32,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
+app.use('/posts', posts);
 app.use('/users', users);
 
 // catch 404 and forward to error handler
