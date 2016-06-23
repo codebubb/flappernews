@@ -29,6 +29,26 @@ app.config([
             return posts.get($stateParams.id);
           }]
         }
+      })
+      .state('login', {
+        url: '/login',
+        templateUrl: '/login.html',
+        controller: 'AuthCtrl',
+        onEnter: ['$state', 'auth', function($state, auth){
+          if(auth.isLoggedIn()){
+            $state.go('home');
+          }
+        }]
+      })
+      .state('register', {
+        url: '/register',
+        templateUrl: '/register.html',
+        controller: 'AuthCtrl',
+        onEnter: ['$state', 'auth', function($state, auth){
+          if(auth.isLoggedIn()){
+            $state.go('home');
+          }
+        }]
       });
     $urlRouterProvider.otherwise('home');
   }
@@ -45,21 +65,28 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     $window.localStorage['flapper-news-token'] = token;
   };
   auth.getToken = function(){
+    console.log("Token is:");
+    console.log($window.localStorage['flapper-news-token']);
     return $window.localStorage['flapper-news-token'];
   };
   auth.isLoggedIn = function(){
-    var token = auth.getToken;
+    var token = this.getToken();
+    console.log(token);
     if(token){
-      var payload = JSON.parse($window.atob(token.split('.'[1])));
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+      console.log(payload.exp);
+      console.log(Date.now() / 1000);
+      console.log(payload.exp > Date.now() /1000);
       return payload.exp > Date.now() / 1000;
     } else{
+      console.log("Error not logged in");
       return false;
     }
   };
   auth.currentUser = function(){
     if(auth.isLoggedIn()){
       var token = auth.getToken();
-      var payload = JSON.parse($windo.atob(token.split('.')[1]));
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
       return payload.username;
     }
   };
@@ -86,7 +113,6 @@ app.factory('posts', ['$http', function($http){
   data.getAll = function(){
     console.log("GetAll");
     return $http.get('/posts').success(function(result){
-      console.log(result);
       angular.copy(result, data.posts);
     });
   };
@@ -167,4 +193,24 @@ app.controller('PostsCtrl', ['$scope', 'posts', 'post', function($scope, posts, 
 
   };
   };
+}]);
+
+app.controller('AuthCtrl', ['$scope', '$state', 'auth', function($scope, $state, auth){
+  $scope.user = {};
+  $scope.register = function(){
+    auth.register($scope.user).error(function(error){
+      $scope.error = error;
+    }).then(function(){
+      $state.go('home');
+    });
+  };
+
+  $scope.logIn = function(){
+    auth.login($scope.user).error(function(error){
+      $scope.error = error;
+    }).then(function(){
+      $state.go('home');
+    });
+  };
+
 }]);

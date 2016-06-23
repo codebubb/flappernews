@@ -3,8 +3,8 @@ var router = express.Router();
 var passport = require('passport');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
-var jwt = require('express-jwt');
-var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
+// var jwt = require('express-jwt');
+// var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
@@ -30,8 +30,10 @@ router.post('/login', function(req, res, next){
   passport.authenticate('local', function(err, user, info){
     if(err){ return next(err); }
     if(user){
+      console.log("Logged in");
       return res.json({token: user.generateJWT()});
     } else{
+      console.log("Login rejected");
       return res.status(401).json(info);
     }
   })(req,res,next);
