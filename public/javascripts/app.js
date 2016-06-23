@@ -70,7 +70,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     return $window.localStorage['flapper-news-token'];
   };
   auth.isLoggedIn = function(){
-    var token = this.getToken();
+    var token = auth.getToken();
     console.log(token);
     if(token){
       var payload = JSON.parse($window.atob(token.split('.')[1]));
@@ -101,6 +101,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     });
   };
   auth.logout = function(){
+    console.log("Logging out");
     $window.localStorage.removeItem('flapper-news-token');
   };
   return auth;
@@ -213,4 +214,10 @@ app.controller('AuthCtrl', ['$scope', '$state', 'auth', function($scope, $state,
     });
   };
 
+}]);
+
+app.controller('NavCtrl', ['$scope', 'auth', function($scope, auth){
+  $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.currentUser = auth.currentUser;
+  $scope.logOut = auth.logout;
 }]);
