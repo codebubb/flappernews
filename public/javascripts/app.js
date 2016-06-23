@@ -65,21 +65,14 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     $window.localStorage['flapper-news-token'] = token;
   };
   auth.getToken = function(){
-    console.log("Token is:");
-    console.log($window.localStorage['flapper-news-token']);
     return $window.localStorage['flapper-news-token'];
   };
   auth.isLoggedIn = function(){
     var token = auth.getToken();
-    console.log(token);
     if(token){
       var payload = JSON.parse($window.atob(token.split('.')[1]));
-      console.log(payload.exp);
-      console.log(Date.now() / 1000);
-      console.log(payload.exp > Date.now() /1000);
       return payload.exp > Date.now() / 1000;
     } else{
-      console.log("Error not logged in");
       return false;
     }
   };
@@ -101,18 +94,20 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     });
   };
   auth.logout = function(){
-    console.log("Logging out");
     $window.localStorage.removeItem('flapper-news-token');
   };
   return auth;
 }]);
 
-app.factory('posts', ['$http', function($http){
+app.factory('posts', ['$http', 'auth', function($http, auth){
   var data = {
     posts: []
   };
+  // console.log("Token: " + auth.getToken());
+  var tokenHeader = {
+    headers: {Authorization: 'Bearer ' + auth.getToken()}
+  };
   data.getAll = function(){
-    console.log("GetAll");
     return $http.get('/posts').success(function(result){
       angular.copy(result, data.posts);
     });
@@ -125,24 +120,25 @@ app.factory('posts', ['$http', function($http){
   };
 
   data.create = function(post){
-    return $http.post('/posts', post).success(function(result){
+    return $http.post('/posts', post, tokenHeader).success(function(result){
       data.posts.push(result);
     });
   };
 
   data.upvote = function(post){
-    return $http.put('/posts/' + post._id + '/upvote')
+    return $http.put('/posts/' + post._id + '/upvote', null, tokenHeader)
       .success(function(result){
         post.upvotes = result.upvotes;
       });
   };
 
   data.addComment = function(id, comment){
-    return $http.post('/posts/' + id + '/comments', comment);
+    console.log("Adding comment...");
+    return $http.post('/posts/' + id + '/comments', comment, tokenHeader);
   };
 
   data.upvoteComment = function(post, comment){
-    return $http.put('/posts/' + post._id + '/comments/' + comment._id + '/upvote')
+    return $http.put('/posts/' + post._id + '/comments/' + comment._id + '/upvote',null, tokenHeader)
       .success(function(result){
         comment.upvotes +=1;
       });
@@ -157,13 +153,15 @@ app.factory('posts', ['$http', function($http){
   -----------
 */
 
-app.controller('MainCtrl', ['$scope', 'posts', function($scope, posts){
+app.controller('MainCtrl', ['$scope', 'posts', 'auth', function($scope, posts, auth){
   $scope.posts = posts.posts;
+  $scope.isLoggedIn = auth.isLoggedIn;
   $scope.addPost = function(){
     if($scope.title){
       posts.create({
         title: $scope.title,
         link: $scope.link
+        // author: auth.currentUser
       });
       $scope.title = '';
       $scope.link = '';
@@ -174,18 +172,20 @@ app.controller('MainCtrl', ['$scope', 'posts', function($scope, posts){
   };
 }]);
 
-app.controller('PostsCtrl', ['$scope', 'posts', 'post', function($scope, posts, post){
+app.controller('PostsCtrl', ['$scope', 'posts', 'post', 'auth', function($scope, posts, post, auth){
   $scope.post = post;
+  $scope.isLoggedIn = auth.isLoggedIn;
   $scope.upvoteComment = function(comment){
-    console.log(post);
-    console.log(comment);
 
-  posts.upvoteComment(post, comment);
+
+    posts.upvoteComment(post, comment);
+  };
   $scope.addComment = function(){
+    console.log("Adding comment (CTRL);");
     if($scope.body){
       posts.addComment(post._id, {
         body: $scope.body,
-        author: 'user',
+        author: auth.currentUser,
       }).success(function(comment){
         $scope.post.comments.push(comment);
       });
@@ -193,7 +193,7 @@ app.controller('PostsCtrl', ['$scope', 'posts', 'post', function($scope, posts, 
     }
 
   };
-  };
+
 }]);
 
 app.controller('AuthCtrl', ['$scope', '$state', 'auth', function($scope, $state, auth){
