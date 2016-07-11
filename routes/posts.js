@@ -50,7 +50,6 @@ router.put('/:post/upvote', auth, function(req, res, next){
 router.post('/', auth, function(req, res, next){
   var post = new Post(req.body);
   post.author = req.payload.username;
-  console.log(post);
   Post.create(post, function(err, result){
     if(err){ return next(err);}
     res.json(result);
