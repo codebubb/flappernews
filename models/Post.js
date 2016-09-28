@@ -1,10 +1,11 @@
+// Load the mongoose library
 var mongoose = require('mongoose');
-
+// The post schema
 var PostSchema = new mongoose.Schema({
-  title: String,
-  link: String,
-  author: String,
-  upvotes: {type: Number, default: 0},
+  title: String, // Title of the post
+  link: String, // Optional link for the article
+  author: String, // Who wrote it
+  upvotes: {type: Number, default: 0}, // Keep track of upvotes for the post
   comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}]
 
 });
