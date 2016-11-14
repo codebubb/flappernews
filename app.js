@@ -12,7 +12,7 @@ var mongoose = require('mongoose');
 require('./models/Post');
 require('./models/Comment');
 require('./models/User');
-// mongoose.connect('mongodb://flapper:flapper123@ds019654.mlab.com:19654/flappernews');
+ mongoose.connect('mongodb://flapper:flapper123@ds019654.mlab.com:19654/flappernews');//
 mongoose.connect('mongodb://localhost/flappernews');
 
 /**
